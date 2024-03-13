@@ -19,5 +19,16 @@ export class EwdAssignment1Stack extends cdk.Stack {
         memorySize: 128,
       }
     );
+
+    const EwdAssignment1FnURL = EwdAssignment1Fn.addFunctionUrl({
+      authType: lambda.FunctionUrlAuthType.AWS_IAM,
+      cors: {
+        allowedOrigins: ["*"],
+      },
+    });
+
+    new cdk.CfnOutput(this, "Simple Function Url", {
+      value: EwdAssignment1FnURL.url,
+    });
   }
 }
