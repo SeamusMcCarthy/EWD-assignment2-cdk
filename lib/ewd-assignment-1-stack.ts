@@ -1,6 +1,10 @@
 import * as cdk from "aws-cdk-lib";
 import * as lambdanode from "aws-cdk-lib/aws-lambda-nodejs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as custom from "aws-cdk-lib/custom-resources";
+import { generateBatch } from "../shared/util";
+import { movieReviews } from "../seed/movieReviews";
 
 import { Construct } from "constructs";
 
@@ -27,7 +31,43 @@ export class EwdAssignment1Stack extends cdk.Stack {
       },
     });
 
-    new cdk.CfnOutput(this, "Simple Function Url", {
+    const movieReviewsTable = new dynamodb.Table(this, "MovieReviewsTable", {
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      partitionKey: { name: "movieId", type: dynamodb.AttributeType.NUMBER },
+      sortKey: { name: "reviewerName", type: dynamodb.AttributeType.STRING },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      tableName: "MovieReviews",
+    });
+
+    movieReviewsTable.addLocalSecondaryIndex({
+      indexName: "dateIx",
+      sortKey: { name: "reviewDate", type: dynamodb.AttributeType.STRING },
+    });
+
+    movieReviewsTable.addLocalSecondaryIndex({
+      indexName: "ratingIx",
+      sortKey: { name: "rating", type: dynamodb.AttributeType.NUMBER },
+    });
+
+    new custom.AwsCustomResource(this, "movieReviewsddbInitData", {
+      onCreate: {
+        service: "DynamoDB",
+        action: "batchWriteItem",
+        parameters: {
+          RequestItems: {
+            [movieReviewsTable.tableName]: generateBatch(movieReviews),
+          },
+        },
+        physicalResourceId: custom.PhysicalResourceId.of(
+          "movieReviewsddbInitData"
+        ), //.of(Date.now().toString()),
+      },
+      policy: custom.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [movieReviewsTable.tableArn],
+      }),
+    });
+
+    new cdk.CfnOutput(this, "EwdAssignment1 Function Url", {
       value: EwdAssignment1FnURL.url,
     });
   }
