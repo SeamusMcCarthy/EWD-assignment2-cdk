@@ -37,6 +37,26 @@
                 }
             },
             "type": "object"
+        },
+        "MovieReviewUpdateParameters": {
+            "additionalProperties": false,
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "movieId": {
+                    "type": "number"
+                },
+                "reviewerName": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "content",
+                "movieId",
+                "reviewerName"
+            ],
+            "type": "object"
         }
     }
 }

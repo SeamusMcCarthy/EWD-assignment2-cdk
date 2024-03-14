@@ -9,3 +9,9 @@ export type MovieReview = {
 export type MovieReviewQueryParameters = {
   minRating?: number;
 };
+
+export type MovieReviewUpdateParameters = {
+  movieId: number;
+  reviewerName: string;
+  content: string;
+};
