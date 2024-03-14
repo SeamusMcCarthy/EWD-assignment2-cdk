@@ -97,6 +97,22 @@ export class EwdAssignment1Stack extends cdk.Stack {
       }
     );
 
+    const newMovieReviewFn = new lambdanode.NodejsFunction(
+      this,
+      "AddMovieReviewFn",
+      {
+        architecture: lambda.Architecture.ARM_64,
+        runtime: lambda.Runtime.NODEJS_16_X,
+        entry: `${__dirname}/../lambdas/addMovieReview.ts`,
+        timeout: cdk.Duration.seconds(10),
+        memorySize: 128,
+        environment: {
+          TABLE_NAME: movieReviewsTable.tableName,
+          REGION: "eu-west-1",
+        },
+      }
+    );
+
     const getMovieReviewsURL = getMovieReviewsFn.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
       cors: {
@@ -106,6 +122,7 @@ export class EwdAssignment1Stack extends cdk.Stack {
 
     // Permissions ......
     movieReviewsTable.grantReadData(getMovieReviewsFn);
+    movieReviewsTable.grantReadWriteData(newMovieReviewFn);
 
     // Routes
     const moviesEndpoint = api.root.addResource("movies"); // /movies
@@ -128,6 +145,11 @@ export class EwdAssignment1Stack extends cdk.Stack {
     movieReviewsEndpoint.addMethod(
       "GET",
       new apig.LambdaIntegration(getMovieReviewsFn, { proxy: true })
+    );
+
+    moviesReviewsEndpoint.addMethod(
+      "POST",
+      new apig.LambdaIntegration(newMovieReviewFn, { proxy: true })
     );
 
     new cdk.CfnOutput(this, "EwdAssignment1 Function Url", {
