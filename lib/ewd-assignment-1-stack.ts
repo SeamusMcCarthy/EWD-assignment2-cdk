@@ -7,30 +7,10 @@ import { generateBatch } from "../shared/util";
 import { movieReviews } from "../seed/movieReviews";
 import { Construct } from "constructs";
 import * as apig from "aws-cdk-lib/aws-apigateway";
-import { PartitionKey } from "aws-cdk-lib/aws-appsync";
 
 export class EwdAssignment1Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
-    const EwdAssignment1Fn = new lambdanode.NodejsFunction(
-      this,
-      "EwdAssignment1Fn",
-      {
-        architecture: lambda.Architecture.ARM_64,
-        runtime: lambda.Runtime.NODEJS_16_X,
-        entry: `${__dirname}/../lambdas/EwdAssignment1.ts`,
-        timeout: cdk.Duration.seconds(10),
-        memorySize: 128,
-      }
-    );
-
-    const EwdAssignment1FnURL = EwdAssignment1Fn.addFunctionUrl({
-      authType: lambda.FunctionUrlAuthType.AWS_IAM,
-      cors: {
-        allowedOrigins: ["*"],
-      },
-    });
 
     const movieReviewsTable = new dynamodb.Table(this, "MovieReviewsTable", {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -49,11 +29,6 @@ export class EwdAssignment1Stack extends cdk.Stack {
       indexName: "ratingIx",
       sortKey: { name: "rating", type: dynamodb.AttributeType.NUMBER },
     });
-
-    // movieReviewsTable.addLocalSecondaryIndex({
-    //   indexName: "reviewerNameIx",
-    //   sortKey: { name: "reviewerName", type: dynamodb.AttributeType.STRING },
-    // });
 
     movieReviewsTable.addGlobalSecondaryIndex({
       indexName: "reviewerNameIx",
@@ -175,6 +150,31 @@ export class EwdAssignment1Stack extends cdk.Stack {
       }
     );
 
+    const role1 = cdk.aws_iam.Role.fromRoleArn(
+      this,
+      "translator",
+      "arn:aws:iam::637423196898:role/translator",
+      {
+        mutable: true,
+      }
+    );
+    const getMovieReviewTranslatedFn = new lambdanode.NodejsFunction(
+      this,
+      "GetMovieReviewTranslatedFn",
+      {
+        architecture: lambda.Architecture.ARM_64,
+        runtime: lambda.Runtime.NODEJS_16_X,
+        entry: `${__dirname}/../lambdas/getMovieReviewTranslated.ts`,
+        timeout: cdk.Duration.seconds(10),
+        memorySize: 128,
+        environment: {
+          TABLE_NAME: movieReviewsTable.tableName,
+          REGION: "eu-west-1",
+        },
+        role: role1,
+      }
+    );
+
     const getMovieReviewsURL = getMovieReviewsFn.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
       cors: {
@@ -188,6 +188,7 @@ export class EwdAssignment1Stack extends cdk.Stack {
     movieReviewsTable.grantReadWriteData(updateMovieReviewFn);
     movieReviewsTable.grantReadData(getMovieReviewNameFn);
     movieReviewsTable.grantReadData(getMovieReviewsByNameFn);
+    movieReviewsTable.grantReadData(getMovieReviewTranslatedFn);
 
     // Routes
     const moviesEndpoint = api.root.addResource("movies"); // /movies
@@ -231,8 +232,9 @@ export class EwdAssignment1Stack extends cdk.Stack {
       new apig.LambdaIntegration(getMovieReviewsByNameFn, { proxy: true })
     );
 
-    new cdk.CfnOutput(this, "EwdAssignment1 Function Url", {
-      value: EwdAssignment1FnURL.url,
-    });
+    reviewsNameMovieTranslateEndpoint.addMethod(
+      "GET",
+      new apig.LambdaIntegration(getMovieReviewTranslatedFn, { proxy: true })
+    );
   }
 }
