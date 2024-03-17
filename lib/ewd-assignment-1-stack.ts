@@ -7,6 +7,7 @@ import { generateBatch } from "../shared/util";
 import { movieReviews } from "../seed/movieReviews";
 import { Construct } from "constructs";
 import * as apig from "aws-cdk-lib/aws-apigateway";
+import { PartitionKey } from "aws-cdk-lib/aws-appsync";
 
 export class EwdAssignment1Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -47,6 +48,19 @@ export class EwdAssignment1Stack extends cdk.Stack {
     movieReviewsTable.addLocalSecondaryIndex({
       indexName: "ratingIx",
       sortKey: { name: "rating", type: dynamodb.AttributeType.NUMBER },
+    });
+
+    // movieReviewsTable.addLocalSecondaryIndex({
+    //   indexName: "reviewerNameIx",
+    //   sortKey: { name: "reviewerName", type: dynamodb.AttributeType.STRING },
+    // });
+
+    movieReviewsTable.addGlobalSecondaryIndex({
+      indexName: "reviewerNameIx",
+      partitionKey: {
+        name: "reviewerName",
+        type: dynamodb.AttributeType.STRING,
+      },
     });
 
     new custom.AwsCustomResource(this, "movieReviewsddbInitData", {
@@ -145,6 +159,22 @@ export class EwdAssignment1Stack extends cdk.Stack {
       }
     );
 
+    const getMovieReviewsByNameFn = new lambdanode.NodejsFunction(
+      this,
+      "GetMovieReviewsByNameFn",
+      {
+        architecture: lambda.Architecture.ARM_64,
+        runtime: lambda.Runtime.NODEJS_16_X,
+        entry: `${__dirname}/../lambdas/getMovieReviewsByName.ts`,
+        timeout: cdk.Duration.seconds(10),
+        memorySize: 128,
+        environment: {
+          TABLE_NAME: movieReviewsTable.tableName,
+          REGION: "eu-west-1",
+        },
+      }
+    );
+
     const getMovieReviewsURL = getMovieReviewsFn.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
       cors: {
@@ -157,6 +187,7 @@ export class EwdAssignment1Stack extends cdk.Stack {
     movieReviewsTable.grantReadWriteData(newMovieReviewFn);
     movieReviewsTable.grantReadWriteData(updateMovieReviewFn);
     movieReviewsTable.grantReadData(getMovieReviewNameFn);
+    movieReviewsTable.grantReadData(getMovieReviewsByNameFn);
 
     // Routes
     const moviesEndpoint = api.root.addResource("movies"); // /movies
@@ -193,6 +224,11 @@ export class EwdAssignment1Stack extends cdk.Stack {
     movieReviewsNameEndpoint.addMethod(
       "GET",
       new apig.LambdaIntegration(getMovieReviewNameFn, { proxy: true })
+    );
+
+    reviewsNameEndpoint.addMethod(
+      "GET",
+      new apig.LambdaIntegration(getMovieReviewsByNameFn, { proxy: true })
     );
 
     new cdk.CfnOutput(this, "EwdAssignment1 Function Url", {
