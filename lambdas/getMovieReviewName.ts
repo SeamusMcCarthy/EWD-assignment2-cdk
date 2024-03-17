@@ -22,6 +22,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     const movieId = parameters?.movieId
       ? parseInt(parameters.movieId)
       : undefined;
+    const reviewerName = parameters?.reviewerName
+      ? decodeURI(parameters?.reviewerName)
+      : undefined;
 
     if (!movieId) {
       return {
@@ -33,50 +36,43 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
       };
     }
 
-    const queryParams = event.queryStringParameters;
-    // const rating = queryParams?.minRating
-    //   ? parseInt(queryParams.minRating)
-    //   : undefined;
-
-    if (queryParams) {
-      // if (!isValidQueryParams(queryParams) || rating === undefined) {
-      if (!isValidQueryParams(queryParams)) {
-        return {
-          statusCode: 500,
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            message: `Incorrect type. Must match Query parameters schema`,
-            schema: schema.definitions["MovieReviewQueryParameters"],
-          }),
-        };
-      }
+    if (!reviewerName) {
+      return {
+        statusCode: 404,
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ Message: "Missing reviewer name" }),
+      };
     }
+
+    const onlyContainsNumbers = (str) => /^\d+$/.test(str);
 
     let commandInput: QueryCommandInput = {
       TableName: process.env.TABLE_NAME,
     };
 
-    if (queryParams) {
+    if (onlyContainsNumbers(reviewerName)) {
       commandInput = {
         ...commandInput,
-        IndexName: "ratingIx",
-        KeyConditionExpression: "movieId = :m and rating >= :r ",
+        IndexName: "dateIx",
+        KeyConditionExpression: "movieId = :m and begins_with(reviewDate, :r)",
         ExpressionAttributeValues: {
           ":m": movieId,
-          ":r": queryParams.minRating,
+          ":r": reviewerName,
         },
       };
     } else {
       commandInput = {
         ...commandInput,
-        KeyConditionExpression: "movieId = :m",
+        KeyConditionExpression: "movieId = :m and reviewerName = :r",
         ExpressionAttributeValues: {
           ":m": movieId,
+          ":r": reviewerName,
         },
       };
     }
+
     const commandOutput = await ddbDocClient.send(
       new QueryCommand(commandInput)
     );
@@ -92,17 +88,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     };
   } catch (error: any) {
     console.log(JSON.stringify(error));
-    // if (isNaN(error.rating)) {
-    //   return {
-    //     statusCode: 500,
-    //     headers: {
-    //       "content-type": "application/json",
-    //     },
-    //     body: JSON.stringify({
-    //       message: `Incorrect type. Minimum rating value must be an integer`,
-    //     }),
-    //   };
-    // }
     return {
       statusCode: 500,
       headers: {
