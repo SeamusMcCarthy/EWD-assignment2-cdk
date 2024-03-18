@@ -7,9 +7,6 @@ __Video demonstration:__ [Demo](https://youtu.be/U0Rn4hKQfTk)
 This repository contains an implementation of a serverless REST API for the AWS platform. The CDK framework is used to provision its infrastructure. The API's domain context is movie reviews.
 
 ### API endpoints.
-
-[ Provide a bullet-point list of the app's endpoints (excluding the Auth API endpoints you have successfully implemented in full. Omit those in the assignment specification that you did not complete.]
-e.g.
  
 + POST /movies/reviews - add a movie review.
 + GET /movies/{movieId}/reviews - Get all the reviews for a movie with the specified id.
@@ -22,11 +19,11 @@ e.g.
 
 ![](./images/API_Gateway.png)
 
-### Authentication (if relevant).
+### Authentication.
 
 ![](./images/Cognito_user.png)
 
-### Independent learning (If relevant).
+### Independent learning.
 
 Ran into some problems adding the translation request as the IAM role being used by the lambda did not have the Amazon Translate permissions for TranslateReadOnly.
 So I created a new 'translator' role which had the AWSLambdaBasicExecutionRole as well as TranslateReadOnly. I then needed to retrieve this role by the ARN in app-api.ts
