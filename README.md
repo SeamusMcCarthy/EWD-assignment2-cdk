@@ -20,18 +20,16 @@ e.g.
 + GET /reviews/{reviewerName} - Get all the reviews written by a specific reviewer
 + GET /reviews/{reviewerName}/{movieId}/translation?language=code - Get a translated version of a movie review using the movie ID and refviewer name as the identifier.
 
-[Include screenshots from the AWS management console (API Gateway service) that clearly show the deployed API ( ensure the font size is legible). ]
-
-![](./images/API Gateway.png)
-
-![](./images/Cognito user.png)
+![](./images/API_Gateway.png)
 
 ### Authentication (if relevant).
 
-[Include a screenshot from the AWS management console (Cognito User Pools) showing a confirmed user account.]
-
-![](./images/pool.png)
+![](./images/Cognito_user.png)
 
 ### Independent learning (If relevant).
 
-[ Briefly explain any aspects of your submission that required independent research and learning, i.e. typically related to the higher grade bands. State the source files that have evidence of this.
+Ran into some problems adding the translation request as the IAM role being used by the lambda did not have the Amazon Translate permissions for TranslateReadOnly.
+So I created a new 'translator' role which had the AWSLambdaBasicExecutionRole as well as TranslateReadOnly. I then needed to retrieve this role by the ARN in app-api.ts
+and assigned this new role to the GetMovieReviewTranslatedFn function.
+
+I also had to create a Global Secondary Index on the database table to accommodate the /reviews/{reviewerName} request where I didn't have any partition key value to work with.
