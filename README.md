@@ -2,7 +2,7 @@
 
 __Name:__ Seamus McCarthy
 
-__Video demonstration:__ TBD
+__Video demonstration:__ [Demo](https://youtu.be/U0Rn4hKQfTk)
 
 This repository contains an implementation of a serverless REST API for the AWS platform. The CDK framework is used to provision its infrastructure. The API's domain context is movie reviews.
 
