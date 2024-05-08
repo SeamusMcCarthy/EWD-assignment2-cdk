@@ -16,6 +16,14 @@ export type MovieReviewUpdateParameters = {
   content: string;
 };
 
+export type PlaylistsQueryParameters = {
+  userName: string;
+};
+
+export type PlaylistEntriesQueryParameters = {
+  playlistName: string;
+};
+
 export type SignUpBody = {
   username: string;
   password: string;

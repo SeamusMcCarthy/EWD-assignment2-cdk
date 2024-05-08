@@ -74,6 +74,62 @@
             ],
             "type": "object"
         },
+        "Playlist": {
+            "additionalProperties": false,
+            "properties": {
+                "playlistName": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "playlistName",
+                "userName"
+            ],
+            "type": "object"
+        },
+        "PlaylistEntriesQueryParameters": {
+            "additionalProperties": false,
+            "properties": {
+                "playlistName": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "playlistName"
+            ],
+            "type": "object"
+        },
+        "PlaylistEntry": {
+            "additionalProperties": false,
+            "properties": {
+                "movieId": {
+                    "type": "number"
+                },
+                "playlistName": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "movieId",
+                "playlistName"
+            ],
+            "type": "object"
+        },
+        "PlaylistsQueryParameters": {
+            "additionalProperties": false,
+            "properties": {
+                "userName": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "userName"
+            ],
+            "type": "object"
+        },
         "SignInBody": {
             "additionalProperties": false,
             "properties": {
