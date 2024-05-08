@@ -1,4 +1,22 @@
-import { MovieReview } from "../shared/types";
+import { MovieReview, Playlist, PlaylistEntry } from "../shared/types";
+
+export const playlists: Playlist[] = [
+  {
+    userName: "user123",
+    playlistName: "Horror faves",
+  },
+];
+
+export const playlistEntries: PlaylistEntry[] = [
+  {
+    playlistName: "Horror faves",
+    movieId: 1,
+  },
+  {
+    playlistName: "Horror faves",
+    movieId: 2,
+  },
+];
 
 export const movieReviews: MovieReview[] = [
   {

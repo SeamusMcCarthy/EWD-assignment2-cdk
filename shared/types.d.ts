@@ -31,3 +31,13 @@ export type SignInBody = {
   username: string;
   password: string;
 };
+
+export type Playlist = {
+  userName: string;
+  playlistName: string;
+};
+
+export type PlaylistEntry = {
+  playlistName: string;
+  movieId: number;
+};

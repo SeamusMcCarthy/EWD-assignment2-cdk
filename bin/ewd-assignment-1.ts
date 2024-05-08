@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import { EwdAssignment1Stack } from "../lib/ewd-assignment-1-stack";
+import { EwdAssignment2Stack } from "../lib/ewd-assignment-2-stack";
 
 const app = new cdk.App();
-new EwdAssignment1Stack(app, "EwdAssignment1Stack", {
+new EwdAssignment2Stack(app, "EwdAssignment2Stack", {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

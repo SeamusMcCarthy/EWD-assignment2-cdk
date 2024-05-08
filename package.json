@@ -1,8 +1,8 @@
 {
-  "name": "ewd-assignment-1",
+  "name": "ewd-assignment-2",
   "version": "0.1.0",
   "bin": {
-    "ewd-assignment-1": "bin/ewd-assignment-1"
+    "ewd-assignment-2": "bin/ewd-assignment-2"
   },
   "scripts": {
     "build": "tsc",

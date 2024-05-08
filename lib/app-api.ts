@@ -10,15 +10,17 @@ import { Table } from "aws-cdk-lib/aws-dynamodb";
 type AppApiProps = {
   userPoolId: string;
   userPoolClientId: string;
-  tableName: Table;
+  tableName1: Table;
+  tableName2: Table;
+  tableName3: Table;
 };
 
 export class AppApi extends Construct {
   constructor(scope: Construct, id: string, props: AppApiProps) {
     super(scope, id);
 
-    const appApi = new apig.RestApi(this, "Assignment1Api", {
-      description: "Assignment1 RestApi",
+    const appApi = new apig.RestApi(this, "Assignment2Api", {
+      description: "Assignment2 RestApi",
       endpointTypes: [apig.EndpointType.REGIONAL],
       defaultCorsPreflightOptions: {
         allowOrigins: apig.Cors.ALL_ORIGINS,
@@ -64,7 +66,7 @@ export class AppApi extends Construct {
         timeout: cdk.Duration.seconds(10),
         memorySize: 128,
         environment: {
-          TABLE_NAME: props.tableName.tableName,
+          TABLE_NAME: props.tableName1.tableName,
           REGION: "eu-west-1",
         },
       }
@@ -80,7 +82,7 @@ export class AppApi extends Construct {
         timeout: cdk.Duration.seconds(10),
         memorySize: 128,
         environment: {
-          TABLE_NAME: props.tableName.tableName,
+          TABLE_NAME: props.tableName1.tableName,
           REGION: "eu-west-1",
         },
       }
@@ -96,7 +98,7 @@ export class AppApi extends Construct {
         timeout: cdk.Duration.seconds(10),
         memorySize: 128,
         environment: {
-          TABLE_NAME: props.tableName.tableName,
+          TABLE_NAME: props.tableName1.tableName,
           REGION: "eu-west-1",
         },
       }
@@ -112,7 +114,7 @@ export class AppApi extends Construct {
         timeout: cdk.Duration.seconds(10),
         memorySize: 128,
         environment: {
-          TABLE_NAME: props.tableName.tableName,
+          TABLE_NAME: props.tableName1.tableName,
           REGION: "eu-west-1",
         },
       }
@@ -128,7 +130,7 @@ export class AppApi extends Construct {
         timeout: cdk.Duration.seconds(10),
         memorySize: 128,
         environment: {
-          TABLE_NAME: props.tableName.tableName,
+          TABLE_NAME: props.tableName1.tableName,
           REGION: "eu-west-1",
         },
       }
@@ -152,7 +154,7 @@ export class AppApi extends Construct {
         timeout: cdk.Duration.seconds(10),
         memorySize: 128,
         environment: {
-          TABLE_NAME: props.tableName.tableName,
+          TABLE_NAME: props.tableName1.tableName,
           REGION: "eu-west-1",
         },
         role: role1,
@@ -167,12 +169,12 @@ export class AppApi extends Construct {
     });
 
     // Permissions ......
-    props.tableName.grantReadData(getMovieReviewsFn);
-    props.tableName.grantReadWriteData(newMovieReviewFn);
-    props.tableName.grantReadWriteData(updateMovieReviewFn);
-    props.tableName.grantReadData(getMovieReviewNameFn);
-    props.tableName.grantReadData(getMovieReviewsByNameFn);
-    props.tableName.grantReadData(getMovieReviewTranslatedFn);
+    props.tableName1.grantReadData(getMovieReviewsFn);
+    props.tableName1.grantReadWriteData(newMovieReviewFn);
+    props.tableName1.grantReadWriteData(updateMovieReviewFn);
+    props.tableName1.grantReadData(getMovieReviewNameFn);
+    props.tableName1.grantReadData(getMovieReviewsByNameFn);
+    props.tableName1.grantReadData(getMovieReviewTranslatedFn);
 
     // Routes
     const moviesEndpoint = appApi.root.addResource("movies"); // /movies

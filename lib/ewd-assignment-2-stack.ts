@@ -1,15 +1,19 @@
 import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as custom from "aws-cdk-lib/custom-resources";
-import { generateBatch } from "../shared/util";
-import { movieReviews } from "../seed/movieReviews";
+import {
+  generateBatch,
+  generatePlaylistBatch,
+  generatePlaylistEntryBatch,
+} from "../shared/util";
+import { movieReviews, playlists, playlistEntries } from "../seed/seedData";
 import { Construct } from "constructs";
 
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { AuthApi } from "./auth-api";
 import { AppApi } from "./app-api";
 
-export class EwdAssignment1Stack extends cdk.Stack {
+export class EwdAssignment2Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -27,6 +31,7 @@ export class EwdAssignment1Stack extends cdk.Stack {
 
     const userPoolClientId = appClient.userPoolClientId;
 
+    // Create movieReviews table
     const movieReviewsTable = new dynamodb.Table(this, "MovieReviewsTable", {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       partitionKey: { name: "movieId", type: dynamodb.AttributeType.NUMBER },
@@ -53,6 +58,31 @@ export class EwdAssignment1Stack extends cdk.Stack {
       },
     });
 
+    // Create playlist table
+    const playlistsTable = new dynamodb.Table(this, "PlaylistsTable", {
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      partitionKey: { name: "userName", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "playlistName", type: dynamodb.AttributeType.STRING },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      tableName: "Playlists",
+    });
+
+    // Create playlistEntries table
+    const playlistEntriesTable = new dynamodb.Table(
+      this,
+      "PlaylistEntriesTable",
+      {
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        partitionKey: {
+          name: "playlistName",
+          type: dynamodb.AttributeType.STRING,
+        },
+        sortKey: { name: "movieId", type: dynamodb.AttributeType.NUMBER },
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        tableName: "PlaylistEntries",
+      }
+    );
+
     new custom.AwsCustomResource(this, "movieReviewsddbInitData", {
       onCreate: {
         service: "DynamoDB",
@@ -71,6 +101,43 @@ export class EwdAssignment1Stack extends cdk.Stack {
       }),
     });
 
+    new custom.AwsCustomResource(this, "playlistsddbInitData", {
+      onCreate: {
+        service: "DynamoDB",
+        action: "batchWriteItem",
+        parameters: {
+          RequestItems: {
+            [playlistsTable.tableName]: generatePlaylistBatch(playlists),
+          },
+        },
+        physicalResourceId: custom.PhysicalResourceId.of(
+          "playlistsddbInitData"
+        ),
+      },
+      policy: custom.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [playlistsTable.tableArn],
+      }),
+    });
+
+    new custom.AwsCustomResource(this, "playlistEntriesddbInitData", {
+      onCreate: {
+        service: "DynamoDB",
+        action: "batchWriteItem",
+        parameters: {
+          RequestItems: {
+            [playlistEntriesTable.tableName]:
+              generatePlaylistEntryBatch(playlistEntries),
+          },
+        },
+        physicalResourceId: custom.PhysicalResourceId.of(
+          "playlistEntriesddbInitData"
+        ),
+      },
+      policy: custom.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [playlistEntriesTable.tableArn],
+      }),
+    });
+
     new AuthApi(this, "AuthServiceApi", {
       userPoolId: userPoolId,
       userPoolClientId: userPoolClientId,
@@ -79,7 +146,9 @@ export class EwdAssignment1Stack extends cdk.Stack {
     new AppApi(this, "AppApi", {
       userPoolId: userPoolId,
       userPoolClientId: userPoolClientId,
-      tableName: movieReviewsTable,
+      tableName1: movieReviewsTable,
+      tableName2: playlistsTable,
+      tableName3: playlistEntriesTable,
     });
   }
 }
