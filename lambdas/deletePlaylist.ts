@@ -14,9 +14,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     // Print Event
     console.log("Event: ", event);
     const parameters = event?.pathParameters;
-    const userName = parameters?.userName
-      ? parseInt(parameters.userName)
-      : undefined;
+    const userName = parameters?.userName ? parameters.userName : undefined;
     const playlistName = parameters?.playlistName
       ? decodeURI(parameters?.playlistName)
       : undefined;
@@ -42,15 +40,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
       };
     }
 
-    if (!body) {
-      return {
-        statusCode: 500,
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ message: "Missing request body" }),
-      };
-    }
     const data = { userName, playlistName };
     if (!isValidBodyParams(data)) {
       return {

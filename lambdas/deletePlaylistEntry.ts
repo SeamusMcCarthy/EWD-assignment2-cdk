@@ -17,12 +17,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     console.log("Event: ", event);
     const parameters = event?.pathParameters;
     const playlistName = parameters?.playlistName
-      ? parseInt(parameters.playlistName)
+      ? decodeURI(parameters.playlistName)
       : undefined;
     const movieId = parameters?.movieId
       ? decodeURI(parameters?.movieId)
       : undefined;
-    const body = event.body ? JSON.parse(event.body) : undefined;
 
     if (!playlistName) {
       return {
