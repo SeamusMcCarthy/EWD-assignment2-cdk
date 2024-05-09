@@ -65,10 +65,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       headers: {
         "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "*",
+        "Content-Type": "application/json",
         "Set-Cookie": `token=${token}; SameSite=None; Secure; HttpOnly; Path=/; Max-Age=3600;`,
       },
       body: JSON.stringify({
-        message: "Auth successfull",
+        message: "Auth successful",
         token: token,
       }),
     };
