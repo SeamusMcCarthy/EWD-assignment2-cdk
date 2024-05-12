@@ -49,6 +49,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
       statusCode: 201,
       headers: {
         "content-type": "application/json",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "*",
       },
       body: JSON.stringify({ message: "Playlist Entry added" }),
     };

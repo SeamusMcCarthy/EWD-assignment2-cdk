@@ -337,11 +337,11 @@ export class AppApi extends Construct {
     // Add lambdas to routes
     userPlaylistsEndpoint.addMethod(
       "GET",
-      new apig.LambdaIntegration(getPlaylistsFn, { proxy: true }),
-      {
-        authorizer: requestAuthorizer,
-        authorizationType: apig.AuthorizationType.CUSTOM,
-      }
+      new apig.LambdaIntegration(getPlaylistsFn, { proxy: true })
+      // {
+      //   authorizer: requestAuthorizer,
+      //   authorizationType: apig.AuthorizationType.CUSTOM,
+      // }
     );
 
     // userPlaylistEndpoint.addMethod(
@@ -355,29 +355,29 @@ export class AppApi extends Construct {
 
     userPlaylistsEndpoint.addMethod(
       "POST",
-      new apig.LambdaIntegration(newPlaylistFn),
-      {
-        authorizer: requestAuthorizer,
-        authorizationType: apig.AuthorizationType.CUSTOM,
-      }
+      new apig.LambdaIntegration(newPlaylistFn)
+      // {
+      //   authorizer: requestAuthorizer,
+      //   authorizationType: apig.AuthorizationType.CUSTOM,
+      // }
     );
 
     userPlaylistEndpoint.addMethod(
       "DELETE",
-      new apig.LambdaIntegration(deletePlaylistFn),
-      {
-        authorizer: requestAuthorizer,
-        authorizationType: apig.AuthorizationType.CUSTOM,
-      }
+      new apig.LambdaIntegration(deletePlaylistFn)
+      // {
+      //   authorizer: requestAuthorizer,
+      //   authorizationType: apig.AuthorizationType.CUSTOM,
+      // }
     );
 
     playlistEntriesEndpoint.addMethod(
       "GET",
-      new apig.LambdaIntegration(getPlaylistEntriesFn, { proxy: true }),
-      {
-        authorizer: requestAuthorizer,
-        authorizationType: apig.AuthorizationType.CUSTOM,
-      }
+      new apig.LambdaIntegration(getPlaylistEntriesFn, { proxy: true })
+      // {
+      //   authorizer: requestAuthorizer,
+      //   authorizationType: apig.AuthorizationType.CUSTOM,
+      // }
     );
 
     // playlistEntryEndpoint.addMethod(
@@ -391,20 +391,20 @@ export class AppApi extends Construct {
 
     playlistEntriesEndpoint.addMethod(
       "POST",
-      new apig.LambdaIntegration(newPlaylistEntryFn),
-      {
-        authorizer: requestAuthorizer,
-        authorizationType: apig.AuthorizationType.CUSTOM,
-      }
+      new apig.LambdaIntegration(newPlaylistEntryFn)
+      // {
+      //   authorizer: requestAuthorizer,
+      //   authorizationType: apig.AuthorizationType.CUSTOM,
+      // }
     );
 
     playlistEntryEndpoint.addMethod(
       "DELETE",
-      new apig.LambdaIntegration(deletePlaylistEntryFn),
-      {
-        authorizer: requestAuthorizer,
-        authorizationType: apig.AuthorizationType.CUSTOM,
-      }
+      new apig.LambdaIntegration(deletePlaylistEntryFn)
+      // {
+      //   authorizer: requestAuthorizer,
+      //   authorizationType: apig.AuthorizationType.CUSTOM,
+      // }
     );
 
     movieReviewsEndpoint.addMethod(
