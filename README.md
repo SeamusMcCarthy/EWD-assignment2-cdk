@@ -2,31 +2,28 @@
 
 __Name:__ Seamus McCarthy
 
-__Video demonstration:__ [Demo](https://youtu.be/U0Rn4hKQfTk)
-
 This repository contains an implementation of a serverless REST API for the AWS platform. The CDK framework is used to provision its infrastructure. The API's domain context is movie reviews.
+Since Assignment 1, the project has been expanded playlist management and persistence to DynamoDB. Cloudfront deployment has also been added.
 
-### API endpoints.
+### (New) API endpoints.
  
-+ POST /movies/reviews - add a movie review.
-+ GET /movies/{movieId}/reviews - Get all the reviews for a movie with the specified id.
-+ GET /movies/{movieId}/reviews?minRating=n - Get all the reviews for the film with the specified ID whose rating was higher than the minRating.
-+ GET /movies/{movieId}/reviews/{reviewerName} - Get the review for the movie with the specified movie ID and written by the named reviewer.
-+ PUT /movies/{movieId}/reviews/{reviewerName} - Update the text of a review.
-+ GET /movies/{movieId}/reviews/{year} - Get the reviews written in a specific year for a specific movie.
-+ GET /reviews/{reviewerName} - Get all the reviews written by a specific reviewer
-+ GET /reviews/{reviewerName}/{movieId}/translation?language=code - Get a translated version of a movie review using the movie ID and refviewer name as the identifier.
-
-![](./images/API_Gateway.png)
++ POST /users/{username}/playlists - add a playlist
++ GET /users/{username}/playlists - get all of this user's playlists
++ DELETE /users/{username}/playlists/{playlistname} - Delete a user's playlist
++ POST /playlists/{playlistname}/entries - add a playlist entry
++ GET /playlists/{playlistname}/entries - get all entries on a playlist
++ DELETE /playlists/{playlistname}/entries/{movieid} - Delete an entry from a user's playlist
 
 ### Authentication.
 
-![](./images/Cognito_user.png)
+Authentication is still catered for via Sign-up, Confirm Sign-up, Login and Logout lambda functions.
 
-### Independent learning.
+### Cloudfront deployment
 
-Ran into some problems adding the translation request as the IAM role being used by the lambda did not have the Amazon Translate permissions for TranslateReadOnly.
-So I created a new 'translator' role which had the AWSLambdaBasicExecutionRole as well as TranslateReadOnly. I then needed to retrieve this role by the ARN in app-api.ts
-and assigned this new role to the GetMovieReviewTranslatedFn function.
+Deployment has been expanded to also deploy the frontend to Cloudfront. The Dist contents were copied into the repo and deployed to an S3 bucket.
+An Origin Access Identity was created and granted read access to the bucket. The bucket also contains a dynamically created file containing the
+URLs of the App and Auth APIs for use by the frontend code.
 
-I also had to create a Global Secondary Index on the database table to accommodate the /reviews/{reviewerName} request where I didn't have any partition key value to work with.
+### Issues
+
+Did encounter an issue around the deployment which appears to be somewhat flaky. Initially, I was receiving a blank page with no error code. After re-introducing the websiteIndexDocument and websiteErrorDocument on the S3 bucket, this changed to a 403 error complaining about a failure to retrieve a Customer Error Document. After changing the bucket creation to use 'index.html' for websiteErrorDocument rather than 'error/index.html' and re-deploying, the distribution domain name started working. While testing the deployed version, trying to login highlighted an error in the frontend code's attempts to use the dynamic API URLs. After correcting this error and re-deploying, the domain name was again returning a 403. 
