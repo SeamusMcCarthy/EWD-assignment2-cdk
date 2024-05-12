@@ -16,6 +16,7 @@ type AppApiProps = {
 };
 
 export class AppApi extends Construct {
+  public readonly apiUrl: string;
   constructor(scope: Construct, id: string, props: AppApiProps) {
     super(scope, id);
 
@@ -24,6 +25,9 @@ export class AppApi extends Construct {
       endpointTypes: [apig.EndpointType.REGIONAL],
       defaultCorsPreflightOptions: {
         allowOrigins: apig.Cors.ALL_ORIGINS,
+        allowHeaders: ["*"],
+        allowCredentials: true,
+        allowMethods: ["OPTIONS", "GET", "POST", "PUT", "DELETE", "PATCH"],
       },
     });
 
@@ -444,5 +448,7 @@ export class AppApi extends Construct {
       "GET",
       new apig.LambdaIntegration(getMovieReviewTranslatedFn, { proxy: true })
     );
+
+    this.apiUrl = appApi.url;
   }
 }

@@ -13,6 +13,7 @@ export class AuthApi extends Construct {
   private auth: apig.IResource;
   private userPoolId: string;
   private userPoolClientId: string;
+  public readonly apiUrl: string;
 
   constructor(scope: Construct, id: string, props: AuthApiProps) {
     super(scope, id);
@@ -41,6 +42,8 @@ export class AuthApi extends Construct {
 
     this.addAuthRoute("signout", "GET", "SignoutFn", "signout.ts");
     this.addAuthRoute("signin", "POST", "SigninFn", "signin.ts");
+
+    this.apiUrl = api.url;
   }
 
   private addAuthRoute(

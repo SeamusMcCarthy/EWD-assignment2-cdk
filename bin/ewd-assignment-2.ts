@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import { EwdAssignment2Stack } from "../lib/ewd-assignment-2-stack";
+import { EwdAssignment2Stack } from "../lib/stacks/ewd-assignment-2-stack";
 
 const app = new cdk.App();
 new EwdAssignment2Stack(app, "EwdAssignment2Stack", {

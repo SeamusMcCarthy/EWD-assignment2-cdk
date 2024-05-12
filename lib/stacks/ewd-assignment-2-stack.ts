@@ -1,17 +1,25 @@
 import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as custom from "aws-cdk-lib/custom-resources";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import * as s3 from "aws-cdk-lib/aws-s3";
+import { FrontendApp } from "../frontend";
+import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
+import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
+import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
+import { CfnOutput, Duration, RemovalPolicy } from "aws-cdk-lib";
+
 import {
   generateBatch,
   generatePlaylistBatch,
   generatePlaylistEntryBatch,
-} from "../shared/util";
-import { movieReviews, playlists, playlistEntries } from "../seed/seedData";
+} from "../../shared/util";
+import { movieReviews, playlists, playlistEntries } from "../../seed/seedData";
 import { Construct } from "constructs";
 
 import { UserPool } from "aws-cdk-lib/aws-cognito";
-import { AuthApi } from "./auth-api";
-import { AppApi } from "./app-api";
+import { AuthApi } from "../auth-api";
+import { AppApi } from "../app-api";
 
 export class EwdAssignment2Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -138,17 +146,22 @@ export class EwdAssignment2Stack extends cdk.Stack {
       }),
     });
 
-    new AuthApi(this, "AuthServiceApi", {
+    const authApi = new AuthApi(this, "AuthServiceApi", {
       userPoolId: userPoolId,
       userPoolClientId: userPoolClientId,
     });
 
-    new AppApi(this, "AppApi", {
+    const appApi = new AppApi(this, "AppApi", {
       userPoolId: userPoolId,
       userPoolClientId: userPoolClientId,
       tableName1: movieReviewsTable,
       tableName2: playlistsTable,
       tableName3: playlistEntriesTable,
+    });
+
+    new FrontendApp(this, "FrontendApp", {
+      apiUrl: appApi.apiUrl,
+      authUrl: authApi.apiUrl,
     });
   }
 }
